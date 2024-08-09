@@ -10,42 +10,19 @@ const client = new Client({
         IntentsBitField.Flags.DirectMessages,
     ]
 });
-identifyProperties.browser = "Discord iOS";
 
 const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222"];
-let tick = 0;
-let godMode;
+let tick = 0, debounce = 6, godMode;
 const whitelist = [];
 
 client.on('ready', (c) => {
     client.user.setPresence({
         activities: [{
-            name: '629fm',
-            type: ActivityType.Listening
+            name: 'you.',
+            type: ActivityType.Watching
         }],
-        //status: 'idle'
+        status: 'dnd'
     });
-    setInterval(() => {
-        switch (tick) {
-            case 0:
-                client.user.setActivity('629fm', { type: ActivityType.Listening });
-                break;
-            case 1:
-                client.user.setActivity('629fm', { type: ActivityType.Competing });
-                break;
-            case 2:
-                client.user.setActivity('629fm', { type: ActivityType.Playing });
-                break;
-            case 3:
-                client.user.setActivity('you.', { type: ActivityType.Watching});
-                break;
-            case 4:
-                client.user.setActivity('629fm', { type: ActivityType.Streaming, url: 'https://youtu.be/xpp2ZuN__CU?si=s0oPAwTNOsb85bzj'});
-                tick = -1;
-                break;
-        }
-        tick++;
-    }, 10000);
 
     cron.schedule('22 29 6 * * *', () => {
         client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
@@ -62,34 +39,55 @@ function msgCheck(msg, edited) {
     if (msg.channelId != process.env.CHANNEL_ID || msg.author.bot || allowed.includes(msg.cleanContent) || msg.system) return;
     for (usr in whitelist) if (whitelist[usr].id == msg.author.id && godMode) return;
 
-        const image = msg.attachments.first()?.url;
-        let processedText = msg.cleanContent == "" ? "EMPTY_STRING" : msg.cleanContent;
+    if (client.presence.status == "idle")
+        client.user.setPresence({
+        activities: [{
+            name: 'you.',
+            type: ActivityType.Watching
+        }],
+        status: 'dnd'
+    });
+    debounce = 6;
 
-        msg.delete().then(console.log(`msg deleted: ${processedText}`));
+    const image = msg.attachments.first()?.url;
+    let processedText = msg.cleanContent == "" ? "EMPTY_STRING" : msg.cleanContent;
 
-        client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
-        setTimeout(() => {
-            client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
-        }, 500);
+    msg.delete().then(console.log(`msg deleted: ${processedText}`));
 
-        if (edited) {
-            processedText = '\\*EDITED* ' + msg.cleanContent;
-        }
+    client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
+    setTimeout(() => {
+        client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
+    }, 500);
 
+    processedText = edited ? '\\*EDITED* ' + msg.cleanContent : processedText;
 
-            const embed = new EmbedBuilder()
-            .setTitle('Message deleted')
-            .setAuthor({ name: msg.author.tag, iconURL: msg.author.avatarURL()})
-            .setColor(0x005e13)
-            .setImage(image)
-            .addFields(
-                { name: 'jump 2 message', value: `${msg.url}`},
-                { name: 'content', value: processedText, }
-            )
-            .setFooter({ text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
-            
-            client.channels.cache.get(process.env.LOG_ID).send({ embeds: [embed] });
+    const embed = new EmbedBuilder()
+        .setTitle('Message deleted')
+        .setAuthor({ name: msg.author.tag, iconURL: msg.author.avatarURL()})
+        .setColor(0x005e13)
+        .setImage(image)
+        .addFields(
+            { name: 'jump 2 message', value: `${msg.url}`},
+            { name: 'content', value: processedText, }
+        )
+        .setFooter({ text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
+        
+    client.channels.cache.get(process.env.LOG_ID).send({ embeds: [embed] });
 }
+
+setInterval(()=> {
+    if (debounce <= 0) {
+        client.user.setPresence({
+            activities: [{
+                name: '629fm',
+                type: ActivityType.Listening
+            }],
+            status: 'idle'
+        });
+        return;
+    }
+    debounce--;
+}, 5000)
 
 client.on('messageCreate', (msg) => {msgCheck(msg, false)});
 client.on('messageUpdate', (oldMsg, msg) => {msgCheck(msg, true)});
