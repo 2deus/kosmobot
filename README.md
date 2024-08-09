@@ -13,6 +13,8 @@ https://discord.gg/qurEuscrnn
 NOTE:
 **Node 18** version or above required to launch
 
+Docker commands should be launched in app folder
+
 Command for launching locally:
 
 ```
@@ -30,4 +32,10 @@ To shut down
 
 ```
 docker-compose down
+```
+
+How to get logs
+
+```
+docker-compose logs
 ```

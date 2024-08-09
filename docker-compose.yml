@@ -11,3 +11,4 @@ services:
       - LOG_ID=${LOG_ID}
       - ROLE_ID=${ROLE_ID}
       - CLIENT_ID=${CLIENT_ID}
+    restart: unless-stopped
