@@ -42,6 +42,7 @@ client.on('ready', (c) => {
             case 4:
                 client.user.setActivity('629fm', { type: ActivityType.Streaming, url: 'https://youtu.be/xpp2ZuN__CU?si=s0oPAwTNOsb85bzj'});
                 tick = -1;
+                break;
         }
         tick++;
     }, 10000);
