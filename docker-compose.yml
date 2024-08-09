@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3080:3080"
+    environment:
+      - TOKEN=${TOKEN}
+      - CHANNEL_ID=${CHANNEL_ID}
+      - LOG_ID=${LOG_ID}
+      - ROLE_ID=${ROLE_ID}
+      - CLIENT_ID=${CLIENT_ID}
