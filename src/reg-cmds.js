@@ -67,11 +67,17 @@ const commands = [
                 required: true
             },
             {
+                name: 'date',
+                description: `start the message with today's date?`,
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            },
+            {
                 name: 'signature',
                 description: 'adds a signature at the end of the message',
                 type: ApplicationCommandOptionType.String,
                 required: false
-            }
+            },
         ]
     }
 ];

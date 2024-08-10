@@ -15,28 +15,30 @@ NOTE:
 
 docker commands should be launched in app folder
 
-command 4 launching locally:
+before running the bot , slash commands need to be registered:
+```
+node src/reg-cmds.js
+```
+this only needs to run once ( and **every time** you update reg-cmds.js )
 
+command 4 launching locally :
 ```
 node src/index.js
 ```
 note: i personally run the bot with [nodemon](https://www.npmjs.com/package/nodemon) 4 easy run-time edits . it restarts the bot automatically after any file is saved
 
-with docker compose:
-
+with docker compose :
 ```
 docker-compose build
 docker-compose up -d
 ```
 
-2 shut down
-
+2 shut down :
 ```
 docker-compose down
 ```
 
-How 2 get logs
-
+How 2 get logs :
 ```
 docker-compose logs
 ```

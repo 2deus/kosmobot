@@ -188,12 +188,13 @@ client.on('interactionCreate', async (intrc) => {
             await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
             return;
         }
+        const announceDate = intrc.options.get('date')?.value ? `${intrc.createdAt.getDate()}/${intrc.createdAt.getMonth()+1}/${intrc.createdAt.getFullYear()} - ` : '';
         const announceTarget = intrc.options.getChannel('channel');
         const announceMsg = intrc.options.get('message').value;
-        let announceSig = intrc.options.get('signature') === null ? "" : intrc.options.get('signature').value;
+        let announceSig = intrc.options.get('signature') === null ? '' : intrc.options.get('signature').value;
 
-        const sentMsg = await announceTarget.send(`${announceMsg}\n${announceSig}`);
-        announceSig = intrc.options.get('signature') === null ? "none" : announceSig;
+        const sentMsg = await announceTarget.send(announceDate+`${announceMsg}\n${announceSig}`);
+        announceSig = intrc.options.get('signature') === null ? 'none' : announceSig;
 
         const bembed = new EmbedBuilder()
             .setTitle('announcement issued')
@@ -202,6 +203,7 @@ client.on('interactionCreate', async (intrc) => {
             .addFields(
                 { name: 'content', value: announceMsg },
                 { name: 'signed', value: announceSig },
+                { name: 'date', value: (intrc.options.get('date')?.value) ? 'yes' : 'no' },
                 { name: 'message link', value: `${sentMsg.url}` }
             )
             .setFooter({
