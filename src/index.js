@@ -52,7 +52,7 @@ function msgCheck(msg, edited) {
     const image = msg.attachments.first()?.url;
     let processedText = msg.cleanContent == "" ? "EMPTY_STRING" : msg.cleanContent;
 
-    msg.delete().then(console.log(`msg deleted: ${processedText}`));
+    msg.delete();//.then(console.log(`msg deleted: ${processedText}`));
 
     client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
     setTimeout(() => {
@@ -139,7 +139,6 @@ client.on('interactionCreate', async (intrc) => {
             for (let i = 0; i < whitelist.length; i++) {
                 allIds = allIds.concat("- ", whitelist[i].tag, '\n');
             };
-            console.log(whitelist);
             await intrc.reply({ content: allIds, ephemeral: true});
             return;
         }
