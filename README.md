@@ -10,8 +10,8 @@ https://discord.gg/qurEuscrnn
 
 # how to launch:
 
-NOTE:
-**Node 18** version or above required 2 launch
+note :
+**node 18** version or above required 2 launch
 
 docker commands should be launched in app folder
 
@@ -25,7 +25,7 @@ command 4 launching locally :
 ```
 node src/index.js
 ```
-note: i personally run the bot with [nodemon](https://www.npmjs.com/package/nodemon) 4 easy run-time edits . it restarts the bot automatically after any file is saved
+note : i personally run the bot with [nodemon](https://www.npmjs.com/package/nodemon) 4 easy run-time edits . it restarts the bot automatically after any file is saved
 
 with docker compose :
 ```
@@ -38,7 +38,7 @@ docker-compose up -d
 docker-compose down
 ```
 
-How 2 get logs :
+2 get logs :
 ```
 docker-compose logs
 ```
