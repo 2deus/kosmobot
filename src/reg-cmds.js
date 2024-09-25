@@ -51,6 +51,36 @@ const commands = [
         ]
     },
     {
+        name: 'blacklist',
+        description: 'which people are restrained from sending messages . mad broken be careful',
+        options: [
+            {
+                name: 'darkswitch',
+                description: 'turn blacklist on/off',
+                type: ApplicationCommandOptionType.Boolean,
+                required: true
+            },
+            {
+                name: 'member',
+                description: 'which member to judge // not required if printing blacklist',
+                type: ApplicationCommandOptionType.User,
+                required: false
+            },
+            {
+                name: 'sinner',
+                description: `send member to depths of gehenna or lift them from their punishment // optional`,
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            },
+            {
+                name: 'print',
+                description: 'print current blacklist // optional',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            }
+        ]
+    },
+    {
         name: 'announce',
         description: 'make kosmolit talk on your behalf',
         options: [
@@ -79,6 +109,10 @@ const commands = [
                 required: false
             },
         ]
+    },
+    {
+        name: 'debt',
+        description: `check how many 629fm msgs are missing a .com`
     }
 ];
 

@@ -11,9 +11,8 @@ const client = new Client({
     ]
 });
 
-const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222"];
-let tick = 0, debounce = 6, godMode;
-const whitelist = [];
+const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222"], whitelist = [], blacklist = [];
+let debounce = 6, debt = 0, godMode, damnation;
 
 client.on('ready', (c) => {
     client.user.setPresence({
@@ -36,8 +35,13 @@ client.on('guildMemberAdd', async (c) => {
 });
 
 function msgCheck(msg, edited) {
-    if (msg.channelId != process.env.CHANNEL_ID || msg.author.bot || allowed.includes(msg.cleanContent) || msg.system) return;
+    let blacklisted = false;
     for (usr in whitelist) if (whitelist[usr].id == msg.author.id && godMode) return;
+    for (usr in blacklist) if (blacklist[usr].id == msg.author.id && damnation) blacklisted = true;
+    if (msg.author.bot && !blacklisted) return;
+    debt = msg.cleanContent == allowed[2] ? debt+1 : msg.cleanContent == allowed[4] ? debt-1 : debt;
+    if (((allowed.includes(msg.cleanContent) || msg.system) && !blacklisted) || msg.channelId != process.env.CHANNEL_ID) return;
+
 
     if (client.presence.status == "idle")
         client.user.setPresence({
@@ -52,11 +56,12 @@ function msgCheck(msg, edited) {
     const image = msg.attachments.first()?.url;
     let processedText = msg.cleanContent == "" ? "EMPTY_STRING" : msg.cleanContent;
 
-    msg.delete();//.then(console.log(`msg deleted: ${processedText}`));
+    msg.delete();
 
     client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
     setTimeout(() => {
         client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
+        debt++;
     }, 500);
 
     processedText = edited ? '\\*EDITED* ' + msg.cleanContent : processedText;
@@ -67,8 +72,9 @@ function msgCheck(msg, edited) {
         .setColor(0x005e13)
         .setImage(image)
         .addFields(
-            { name: 'jump 2 message', value: `${msg.url}`},
-            { name: 'content', value: processedText, }
+            { name: 'content', value: processedText },
+            { name: 'jump 2 message', value: `${msg.url}` },
+            { name: 'blacklisted?', value: `${blacklisted}` }
         )
         .setFooter({ text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
         
@@ -109,7 +115,8 @@ client.on('interactionCreate', async (intrc) => {
                 await intrc.reply({ content: `try including a member first`, ephemeral: true});
                 return;
             }
-            for (usr in whitelist) if (whitelist[usr].id == addedUser.id) {
+        for (usr in whitelist)
+            if (whitelist[usr].id == addedUser.id) {
                 await intrc.reply({ content: `user ${addedUser.tag} already in whitelist`, ephemeral: true});
                 return;
             }
@@ -135,7 +142,7 @@ client.on('interactionCreate', async (intrc) => {
                 await intrc.reply({ content: `whitelist is empty`, ephemeral: true});
                 return;
             }
-            let allIds = "whitelist:\n";
+            let allIds = "DIVINE:\n";
             for (let i = 0; i < whitelist.length; i++) {
                 allIds = allIds.concat("- ", whitelist[i].tag, '\n');
             };
@@ -143,6 +150,57 @@ client.on('interactionCreate', async (intrc) => {
             return;
         }
         await intrc.reply({ content: `whitelist set to ${godMode}`, ephemeral: true});
+    }
+
+    if (intrc.commandName === 'blacklist') {
+        if (!intrc.member.permissions.has(PermissionsBitField.Flags.ManageMessages) && !intrc.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
+            await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
+            return;
+        }
+            damnation = intrc.options.get('darkswitch').value;
+            const addedUser = intrc.options.get('member')?.user;
+            const isSinner = intrc.options.get('sinner')?.value;
+            const isPrint = intrc.options.get('print')?.value;
+            if (isSinner === true) {
+                if (!addedUser) {
+                    await intrc.reply({ content: `try including a member first`, ephemeral: true});
+                    return;
+                }
+            for (usr in blacklist)
+                if (blacklist[usr].id == addedUser.id) {
+                    await intrc.reply({ content: `user ${addedUser.tag} already in blacklist`, ephemeral: true});
+                    return;
+                }
+                blacklist.push(addedUser);
+                await intrc.reply({ content: `added user ${addedUser.tag} to the blacklist`, ephemeral: true});
+                return;
+            }
+            else if (isSinner === false) {
+                if (!addedUser) {
+                    await intrc.reply({ content: `try including a member first`, ephemeral: true});
+                    return;
+                }
+                const didSlice = blacklist.splice(blacklist.indexOf(addedUser), 1);
+                if (didSlice.length === 0) {
+                    await intrc.reply({ content: `user ${addedUser.tag} is not in blacklist`, ephemeral: true});
+                    return;
+                }
+                await intrc.reply({ content: `removed user ${addedUser.tag} from the blacklist`, ephemeral: true});
+                return;
+            }
+            if (isPrint) {
+                if (blacklist.length == 0) {
+                    await intrc.reply({ content: `blacklist is empty`, ephemeral: true});
+                    return;
+                }
+                let allIds = "SINNERS:\n";
+                for (let i = 0; i < blacklist.length; i++) {
+                    allIds = allIds.concat("- ", blacklist[i].tag, '\n');
+                };
+                await intrc.reply({ content: allIds, ephemeral: true});
+                return;
+            }
+            await intrc.reply({ content: `blacklist set to ${damnation}`, ephemeral: true});
     }
 
     if (intrc.commandName === 'purge') {
@@ -212,6 +270,12 @@ client.on('interactionCreate', async (intrc) => {
         client.channels.cache.get(process.env.LOG_ID).send({ embeds: [bembed] });
 
         await intrc.reply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, ephemeral: true});
+    }
+
+    if (intrc.commandName === 'debt') {
+        if (debt > 0) await intrc.reply({ content: `currently consent dept is ${debt} .com entries short`, ephemeral: true });
+        else if (debt < 0 ) await intrc.reply({ content: `currently consent dept is ${debt * -1} .com entries ahead`, ephemeral: true });
+        else await intrc.reply({ content: `currently consent dept is not facing a .com entry shortage`, ephemeral: true });
     }
 
 });
