@@ -91,15 +91,21 @@ const commands = [
                 required: true
             },
             {
-                name: 'message',
-                description: 'what to say',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
                 name: 'date',
                 description: `start the message with today's date?`,
                 type: ApplicationCommandOptionType.Boolean,
+                required: true
+            },
+            {
+                name: 'message',
+                description: 'what to say',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
+                name: 'image',
+                description: 'add an attachment to the announcement',
+                type: ApplicationCommandOptionType.Attachment,
                 required: false
             },
             {
@@ -107,7 +113,7 @@ const commands = [
                 description: 'adds a signature at the end of the message',
                 type: ApplicationCommandOptionType.String,
                 required: false
-            },
+            }
         ]
     },
     {

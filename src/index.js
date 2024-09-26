@@ -1,6 +1,6 @@
 require('dotenv').config();
 var cron = require('node-cron');
-const { Client, IntentsBitField, EmbedBuilder, ActivityType, DefaultWebSocketManagerOptions: {identifyProperties}, PermissionsBitField} = require('discord.js');
+const { Client, IntentsBitField, EmbedBuilder, ActivityType, DefaultWebSocketManagerOptions: {identifyProperties}, PermissionsBitField, AttachmentBuilder} = require('discord.js');
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -246,21 +246,36 @@ client.on('interactionCreate', async (intrc) => {
             await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
             return;
         }
-        const announceDate = intrc.options.get('date')?.value ? `${intrc.createdAt.getDate()}/${intrc.createdAt.getMonth()+1}/${intrc.createdAt.getFullYear()} - ` : '';
-        const announceTarget = intrc.options.getChannel('channel');
-        const announceMsg = intrc.options.get('message').value;
-        let announceSig = intrc.options.get('signature') === null ? '' : intrc.options.get('signature').value;
 
-        const sentMsg = await announceTarget.send(announceDate+`${announceMsg}\n${announceSig}`);
-        announceSig = intrc.options.get('signature') === null ? 'none' : announceSig;
+        const announceTarget = intrc.options.getChannel('channel');
+        const announceImg = intrc.options.getAttachment('image');
+        const dateFormat = `${intrc.createdAt.getDate()}/${intrc.createdAt.getMonth()+1}/${intrc.createdAt.getFullYear()}`;
+        const announceMsg = intrc.options.get('message')?.value ? intrc.options.get('message').value : "";
+        let announceSig = intrc.options.get('signature')?.value ? intrc.options.get('signature').value : "";
+        const announceDate = 
+            intrc.options.get('date')?.value && announceMsg.length === 0 ? dateFormat :
+            intrc.options.get('date')?.value ? dateFormat+" - " : "";
+
+        let processedImg;
+        const msgData = { content: `${announceDate} ${announceMsg}\n${announceSig}` };
+        if (announceImg) {
+            processedImg = new AttachmentBuilder(announceImg.url);
+            msgData.files = [processedImg];
+        }
+
+        const sentMsg = await announceTarget.send(msgData);
+        await intrc.reply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, ephemeral: true});
+
+        announceSig = announceSig.length === 0 ? 'none' : announceSig;
 
         const bembed = new EmbedBuilder()
             .setTitle('announcement issued')
             .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.avatarURL()})
             .setColor(0x005e13)
+            .setImage(processedImg?.attachment)
             .addFields(
-                { name: 'content', value: announceMsg },
-                { name: 'signed', value: announceSig },
+                { name: 'content', value: announceMsg.length === 0 ? 'EMPTY_STRING' : announceMsg },
+                { name: 'signed', value: announceSig.length === 0 ? 'none' : announceSig },
                 { name: 'date', value: (intrc.options.get('date')?.value) ? 'yes' : 'no' },
                 { name: 'message link', value: `${sentMsg.url}` }
             )
@@ -268,8 +283,6 @@ client.on('interactionCreate', async (intrc) => {
                 text: 'cmd called at: ' + intrc.createdAt.toLocaleDateString() + ' ' + intrc.createdAt.toLocaleTimeString()
             })
         client.channels.cache.get(process.env.LOG_ID).send({ embeds: [bembed] });
-
-        await intrc.reply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, ephemeral: true});
     }
 
     if (intrc.commandName === 'debt') {
