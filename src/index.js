@@ -32,16 +32,23 @@ client.on('ready', (c) => {
 client.on('guildMemberAdd', async (c) => {
     c.roles.add([process.env.ROLE_ID]);
     c.setNickname('629fm');
+    const embed = new EmbedBuilder()
+        .setTitle('New member')
+        .setAuthor({ name: c.user.tag, iconURL: c.user.avatarURL()})
+        .setColor(0x005e13)
+        .setFooter({ text: 'user ID: ' + c.id + ' | ' + c.joinedAt.toLocaleDateString() + ' ' + c.joinedAt.toLocaleTimeString() })
+        
+    client.channels.cache.get(process.env.LOG_ID).send({ embeds: [embed] });
 });
 
 function msgCheck(msg, edited) {
     let blacklisted = false;
     for (usr in whitelist) if (whitelist[usr].id == msg.author.id && godMode) return;
     for (usr in blacklist) if (blacklist[usr].id == msg.author.id && damnation) blacklisted = true;
-    if (msg.author.bot && !blacklisted) return;
-    debt = msg.cleanContent == allowed[2] ? debt+1 : msg.cleanContent == allowed[4] ? debt-1 : debt;
+    if (msg.author.bot) return;
+    if (!blacklisted) debt += msg.cleanContent == allowed[2] ? 1 : msg.cleanContent == allowed[4] ? -1 : 0;
     if (((allowed.includes(msg.cleanContent) || msg.system) && !blacklisted) || msg.channelId != process.env.CHANNEL_ID) return;
-
+    
 
     if (client.presence.status == "idle")
         client.user.setPresence({
@@ -58,12 +65,13 @@ function msgCheck(msg, edited) {
 
     msg.delete();
 
-    client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
-    setTimeout(() => {
-        client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
-        debt++;
-    }, 500);
-
+    if (!blacklisted) {
+        client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
+        setTimeout(() => {
+            client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
+            debt++;
+        }, 500);
+    }
     processedText = edited ? '\\*EDITED* ' + msg.cleanContent : processedText;
 
     const embed = new EmbedBuilder()
