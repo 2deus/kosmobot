@@ -8,7 +8,7 @@ note : this repo uses [.env](https://www.npmjs.com/package/dotenv) 4 configurati
 
 https://discord.gg/qurEuscrnn
 
-# how to launch:
+# how to launch
 
 note :
 **node 18** version or above required 2 launch . latest node version can be downloaded [here](https://nodejs.org/en/download/package-manager) .
