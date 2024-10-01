@@ -25,6 +25,7 @@ client.on('ready', (c) => {
 
     cron.schedule('22 29 6 * * *', () => {
         client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
+        debt++;
     }, {timezone: "Europe/Vilnius"});
     console.log(`${c.user.tag} is online`);
 });
