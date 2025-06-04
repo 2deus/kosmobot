@@ -1,6 +1,6 @@
 require('dotenv').config();
 var cron = require('node-cron');
-const { Client, IntentsBitField, EmbedBuilder, ActivityType, DefaultWebSocketManagerOptions: {identifyProperties}, PermissionsBitField, AttachmentBuilder} = require('discord.js');
+const { Client, IntentsBitField, EmbedBuilder, ActivityType, PermissionsBitField, AttachmentBuilder} = require('discord.js');
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -34,12 +34,24 @@ client.on('guildMemberAdd', async (c) => {
     c.roles.add([process.env.ROLE_ID]);
     c.setNickname('629fm');
     const embed = new EmbedBuilder()
-        .setTitle('New member')
-        .setAuthor({ name: c.user.tag, iconURL: c.user.avatarURL()})
+        .setTitle('new member')
+        .setAuthor({ name: c.user.tag, iconURL: c.user.displayAvatarURL()})
         .setColor(0x005e13)
         .setFooter({ text: 'user ID: ' + c.id + ' | ' + c.joinedAt.toLocaleDateString() + ' ' + c.joinedAt.toLocaleTimeString() })
         
-    client.channels.cache.get(process.env.LOG_ID).send({ embeds: [embed] });
+    const logChannel = client.channels.cache.get(process.env.LOG_ID);
+    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
+});
+
+client.on('guildMemberRemove', async (c) => {
+    const embed = new EmbedBuilder()
+        .setTitle('member gone')
+        .setAuthor({ name: c.user.tag, iconURL: c.user.displayAvatarURL()})
+        .setColor(0x005e13)
+        .setFooter({ text: 'user ID: ' + c.id + ' | ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString() })
+
+    const logChannel = client.channels.cache.get(process.env.LOG_ID);
+    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
 });
 
 function msgCheck(msg, edited) {
@@ -77,7 +89,7 @@ function msgCheck(msg, edited) {
 
     const embed = new EmbedBuilder()
         .setTitle('Message deleted')
-        .setAuthor({ name: msg.author.tag, iconURL: msg.author.avatarURL()})
+        .setAuthor({ name: msg.author.tag, iconURL: msg.author.displayAvatarURL()})
         .setColor(0x005e13)
         .setImage(image)
         .addFields(
@@ -87,7 +99,8 @@ function msgCheck(msg, edited) {
         )
         .setFooter({ text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
         
-    client.channels.cache.get(process.env.LOG_ID).send({ embeds: [embed] });
+    const logChannel = client.channels.cache.get(process.env.LOG_ID);
+    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
 }
 
 setInterval(()=> {
@@ -231,7 +244,7 @@ client.on('interactionCreate', async (intrc) => {
 
             const embed = new EmbedBuilder()
             .setTitle('bulk delete command used')
-            .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.avatarURL()})
+            .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.displayAvatarURL()})
             .setColor(0x005e13)
             .setDescription('messages:\n'+deletedmsg.map(msg => `${msg.content}`).join('\n')) // fix this
             .addFields(
@@ -240,7 +253,10 @@ client.on('interactionCreate', async (intrc) => {
             .setFooter({
                 text: 'cmd called at: ' + intrc.createdAt.toLocaleDateString() + ' ' + intrc.createdAt.toLocaleTimeString()
             })
-        client.channels.cache.get(process.env.LOG_ID).send({ embeds: [embed] });
+        
+        const logChannel = client.channels.cache.get(process.env.LOG_ID);
+        if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
+
         await intrc.reply({ content: `${deletedmsg.size} messages deleted successfully`, ephemeral: true });
         }
         catch (error) {
@@ -255,6 +271,8 @@ client.on('interactionCreate', async (intrc) => {
             await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
             return;
         }
+
+        await intrc.deferReply({ ephemeral: true });
 
         const announceTarget = intrc.options.getChannel('channel');
         const announceImg = intrc.options.getAttachment('image');
@@ -273,13 +291,13 @@ client.on('interactionCreate', async (intrc) => {
         }
 
         const sentMsg = await announceTarget.send(msgData);
-        await intrc.reply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, ephemeral: true});
+        await intrc.editReply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, ephemeral: true});
 
         announceSig = announceSig.length === 0 ? 'none' : announceSig;
 
-        const bembed = new EmbedBuilder()
+        const embed = new EmbedBuilder()
             .setTitle('announcement issued')
-            .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.avatarURL()})
+            .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.displayAvatarURL()})
             .setColor(0x005e13)
             .setImage(processedImg?.attachment)
             .addFields(
@@ -291,7 +309,9 @@ client.on('interactionCreate', async (intrc) => {
             .setFooter({
                 text: 'cmd called at: ' + intrc.createdAt.toLocaleDateString() + ' ' + intrc.createdAt.toLocaleTimeString()
             })
-        client.channels.cache.get(process.env.LOG_ID).send({ embeds: [bembed] });
+
+        const logChannel = client.channels.cache.get(process.env.LOG_ID);
+        if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
     }
 
     if (intrc.commandName === 'debt') {
