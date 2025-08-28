@@ -11,7 +11,7 @@ const client = new Client({
     ]
 });
 
-const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222"], whitelist = [], blacklist = [];
+const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222", "VAYU"], whitelist = [], blacklist = [];
 let debounce = 6, debt = 0, godMode, damnation;
 
 client.on('ready', (c) => {
