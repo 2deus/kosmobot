@@ -276,7 +276,7 @@ client.on('interactionCreate', async (intrc) => {
 
         const announceTarget = intrc.options.getChannel('channel');
         const announceImg = intrc.options.getAttachment('image');
-        const dateFormat = `${intrc.createdAt.getDate()}/${intrc.createdAt.getMonth()+1}/${intrc.createdAt.getFullYear()}`;
+        const dateFormat =  `${intrc.createdAt.getDate().toString().padStart(2, '0')}/${(intrc.createdAt.getMonth()+1).toString().padStart(2, '0')}/${intrc.createdAt.getFullYear()}`;
         const announceMsg = intrc.options.get('message')?.value ? intrc.options.get('message').value : "";
         let announceSig = intrc.options.get('signature')?.value ? intrc.options.get('signature').value : "";
         const announceDate = 
