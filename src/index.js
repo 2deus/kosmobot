@@ -315,9 +315,9 @@ client.on('interactionCreate', async (intrc) => {
     }
 
     if (intrc.commandName === 'debt') {
-        if (debt > 0) await intrc.reply({ content: `currently consent dept is ${debt} .com entries short`, ephemeral: true });
-        else if (debt < 0 ) await intrc.reply({ content: `currently consent dept is ${debt * -1} .com entries ahead`, ephemeral: true });
-        else await intrc.reply({ content: `currently consent dept is not facing a .com entry shortage`, ephemeral: true });
+        if (debt > 0) await intrc.reply({ content: `at this moment consent dept is ${debt} .com entries short`, ephemeral: true });
+        else if (debt < 0 ) await intrc.reply({ content: `at this moment consent dept is ${debt * -1} .com entries ahead`, ephemeral: true });
+        else await intrc.reply({ content: `at this moment consent dept is not facing a .com entry shortage`, ephemeral: true });
     }
 
 });
