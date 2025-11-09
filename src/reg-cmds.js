@@ -4,17 +4,17 @@ const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');
 const commands = [
     {
         name: 'purge',
-        description: 'mass-deletes an amount of fetched messages . this will NOT delete messages OLDER THAN 2 WEEKS',
+        description: 'deletes fetched messages with a lifetime of <2 weeks',
         options: [
             {
                 name: 'non-629fm',
-                description: 'delete non-629fm messages only?',
+                description: 'whether 2 ignore 629fm messages',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true
             },
             {
-                name: 'fetchamount',
-                description: 'amount of messages to FETCH ( max 100 )',
+                name: 'fetch-amount',
+                description: 'how many messages 2 fetch (max 100)',
                 type: ApplicationCommandOptionType.Number,
                 required: true
             }
@@ -22,29 +22,29 @@ const commands = [
     },
     {
         name: 'whitelist',
-        description: 'which people are ignored by fm check . mad broken be careful',
+        description: 'which investors should be ignored by kosmobot',
         options: [
             {
-                name: 'masterswitch',
+                name: 'lightswitch',
                 description: 'turn whitelist on/off',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true
             },
             {
                 name: 'member',
-                description: 'which member to judge // not required if printing whitelist',
+                description: 'which member 2 judge // not required if printing list',
                 type: ApplicationCommandOptionType.User,
                 required: false
             },
             {
                 name: 'god',
-                description: 'make member god or sever their divine link // optional',
+                description: 'gift or sever the divine light',
                 type: ApplicationCommandOptionType.Boolean,
                 required: false
             },
             {
                 name: 'print',
-                description: 'print current whitelist // optional',
+                description: 'print list in white',
                 type: ApplicationCommandOptionType.Boolean,
                 required: false
             }
@@ -52,29 +52,29 @@ const commands = [
     },
     {
         name: 'blacklist',
-        description: 'which people are restrained from sending messages . mad broken be careful',
+        description: 'which grifters should be targeted by kosmobot',
         options: [
             {
                 name: 'darkswitch',
-                description: 'turn blacklist on/off',
+                description: 'toggle blacklist',
                 type: ApplicationCommandOptionType.Boolean,
                 required: true
             },
             {
                 name: 'member',
-                description: 'which member to judge // not required if printing blacklist',
+                description: 'which member 2 judge // not required if printing list',
                 type: ApplicationCommandOptionType.User,
                 required: false
             },
             {
                 name: 'sinner',
-                description: `send member to depths of gehenna or lift them from their punishment // optional`,
+                description: `exercise or lift the will of god`,
                 type: ApplicationCommandOptionType.Boolean,
                 required: false
             },
             {
                 name: 'print',
-                description: 'print current blacklist // optional',
+                description: 'print list in black',
                 type: ApplicationCommandOptionType.Boolean,
                 required: false
             }
@@ -86,31 +86,31 @@ const commands = [
         options: [
             {
                 name: 'channel',
-                description: 'which channel to announce in',
+                description: 'which channel to issue the announcement 2',
                 type: ApplicationCommandOptionType.Channel,
                 required: true
             },
             {
                 name: 'date',
-                description: `start the message with today's date?`,
+                description: `whether the announcement should start with a date`,
                 type: ApplicationCommandOptionType.Boolean,
                 required: true
             },
             {
                 name: 'message',
-                description: 'what to say',
+                description: 'the contents of the announcement',
                 type: ApplicationCommandOptionType.String,
                 required: false
             },
             {
-                name: 'image',
-                description: 'add an attachment to the announcement',
+                name: 'attachment',
+                description: 'attach something to the announcement',
                 type: ApplicationCommandOptionType.Attachment,
                 required: false
             },
             {
                 name: 'signature',
-                description: 'adds a signature at the end of the message',
+                description: 'append a string to the end of the announcement on a new line',
                 type: ApplicationCommandOptionType.String,
                 required: false
             }

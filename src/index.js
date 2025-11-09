@@ -1,6 +1,9 @@
 require('dotenv').config();
+const fs = require('node:fs');
+const path = require('node:path');
 var cron = require('node-cron');
-const { Client, IntentsBitField, EmbedBuilder, ActivityType, PermissionsBitField, AttachmentBuilder} = require('discord.js');
+
+const { Client, Collection, IntentsBitField, EmbedBuilder, ActivityType } = require('discord.js');
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -11,8 +14,28 @@ const client = new Client({
     ]
 });
 
-const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222", "VAYU"], whitelist = [], blacklist = [];
-let debounce = 6, debt = 0, godMode, damnation;
+const allowed = ["629", "fm", "629fm", "fm.com", ".com", "629fm.com", "@629fm", "222", "VAYU"];
+let debounce = 6;
+
+client.data = {
+    debt: 0,
+    godMode: false,
+    damnation: false,
+    whitelist: [],
+    blacklist: []
+};
+
+client.cmds = new Collection();
+
+const cmdPath = path.join(__dirname, 'cmds');
+const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.js'));
+
+for (const f of cmdFiles) {
+    const fPath = path.join(cmdPath, f);
+    const cmd = require(fPath);
+    if ('data' in cmd && 'execute' in cmd) {client.cmds.set(cmd.data.name, cmd);console.log('command '+cmd.data.name+' loaded !')}
+        else console.warn(`<<<<<<<<WARNING>>>>>>>> command @ ${fPath} is missing "data" or "execute"`);
+}
 
 client.on('ready', (c) => {
     client.user.setPresence({
@@ -25,7 +48,7 @@ client.on('ready', (c) => {
 
     cron.schedule('22 29 6 * * *', () => {
         client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
-        debt++;
+        client.data.debt++;
     }, {timezone: "Europe/Vilnius"});
     console.log(`${c.user.tag} is online`);
 });
@@ -37,10 +60,13 @@ client.on('guildMemberAdd', async (c) => {
         .setTitle('new member')
         .setAuthor({ name: c.user.tag, iconURL: c.user.displayAvatarURL()})
         .setColor(0x005e13)
-        .setFooter({ text: 'user ID: ' + c.id + ' | ' + c.joinedAt.toLocaleDateString() + ' ' + c.joinedAt.toLocaleTimeString() })
+        .setFooter(
+            { text: 'user ID: ' + c.id + ' | ' + c.joinedAt.toLocaleDateString() + ' ' + c.joinedAt.toLocaleTimeString() })
         
     const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
+    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
+        else warn(`<<<<<<<<WARNING>>>>>>>> member joined but logging failed. check whether <#${process.env.LOG_ID}> exists`);
+    return;
 });
 
 client.on('guildMemberRemove', async (c) => {
@@ -48,18 +74,21 @@ client.on('guildMemberRemove', async (c) => {
         .setTitle('member gone')
         .setAuthor({ name: c.user.tag, iconURL: c.user.displayAvatarURL()})
         .setColor(0x005e13)
-        .setFooter({ text: 'user ID: ' + c.id + ' | ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString() })
+        .setFooter(
+            { text: 'user ID: ' + c.id + ' | ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString() })
 
     const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
+    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
+        else warn(`<<<<<<<<WARNING>>>>>>>> member left but logging failed. check whether <#${process.env.LOG_ID}> exists`);
+    return;
 });
 
 function msgCheck(msg, edited) {
     let blacklisted = false;
-    for (usr in whitelist) if (whitelist[usr].id == msg.author.id && godMode) return;
-    for (usr in blacklist) if (blacklist[usr].id == msg.author.id && damnation) blacklisted = true;
+    for (usr in client.data.whitelist) if (client.data.whitelist[usr].id == msg.author.id && client.data.godMode) return;
+    for (usr in client.data.blacklist) if (client.data.blacklist[usr].id == msg.author.id && client.data.damnation) blacklisted = true;
     if (msg.author.bot) return;
-    if (!blacklisted) debt += msg.cleanContent == allowed[2] ? 1 : msg.cleanContent == allowed[4] ? -1 : 0;
+    if (!blacklisted) client.data.debt += msg.cleanContent == allowed[2] ? 1 : msg.cleanContent == allowed[4] ? -1 : 0;
     if (((allowed.includes(msg.cleanContent) || msg.system) && !blacklisted) || msg.channelId != process.env.CHANNEL_ID) return;
     
 
@@ -82,7 +111,7 @@ function msgCheck(msg, edited) {
         client.channels.cache.get(process.env.CHANNEL_ID).sendTyping();
         setTimeout(() => {
             client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
-            debt++;
+            client.data.debt++;
         }, 500);
     }
     processedText = edited ? '\\*EDITED* ' + msg.cleanContent : processedText;
@@ -95,12 +124,14 @@ function msgCheck(msg, edited) {
         .addFields(
             { name: 'content', value: processedText },
             { name: 'jump 2 message', value: `${msg.url}` },
-            { name: 'blacklisted?', value: `${blacklisted}` }
-        )
-        .setFooter({ text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
+            { name: 'blacklisted?', value: `${blacklisted}` })
+        .setFooter(
+            { text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
         
     const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
+    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
+        else warn(`<<<<<<<<WARNING>>>>>>>> logging failed. check whether <#${process.env.LOG_ID}> exists`);
+    return;
 }
 
 setInterval(()=> {
@@ -118,208 +149,19 @@ setInterval(()=> {
 }, 5000)
 
 client.on('messageCreate', (msg) => {msgCheck(msg, false)});
-client.on('messageUpdate', (oldMsg, msg) => {msgCheck(msg, true)});
+client.on('messageUpdate', (_, msg) => {msgCheck(msg, true)});
 
 client.on('interactionCreate', async (intrc) => {
     if (!intrc.isChatInputCommand()) return;
 
-    if (intrc.commandName === 'whitelist') {
-        if (!intrc.member.permissions.has(PermissionsBitField.Flags.ManageMessages) && !intrc.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-            await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
-            return;
-        }
-        godMode = intrc.options.get('masterswitch').value;
-        const addedUser = intrc.options.get('member')?.user;
-        const isGod = intrc.options.get('god')?.value;
-        const isPrint = intrc.options.get('print')?.value;
-        if (isGod === true) {
-            if (!addedUser) {
-                await intrc.reply({ content: `try including a member first`, ephemeral: true});
-                return;
-            }
-        for (usr in whitelist)
-            if (whitelist[usr].id == addedUser.id) {
-                await intrc.reply({ content: `user ${addedUser.tag} already in whitelist`, ephemeral: true});
-                return;
-            }
-            whitelist.push(addedUser);
-            await intrc.reply({ content: `added user ${addedUser.tag} to the whitelist`, ephemeral: true});
-            return;
-        }
-        else if (isGod === false) {
-            if (!addedUser) {
-                await intrc.reply({ content: `try including a member first`, ephemeral: true});
-                return;
-            }
-            const didSlice = whitelist.splice(whitelist.indexOf(addedUser), 1);
-            if (didSlice.length === 0) {
-                await intrc.reply({ content: `user ${addedUser.tag} is not in whitelist`, ephemeral: true});
-                return;
-            }
-            await intrc.reply({ content: `removed user ${addedUser.tag} from the whitelist`, ephemeral: true});
-            return;
-        }
-        if (isPrint) {
-            if (whitelist.length == 0) {
-                await intrc.reply({ content: `whitelist is empty`, ephemeral: true});
-                return;
-            }
-            let allIds = "DIVINE:\n";
-            for (let i = 0; i < whitelist.length; i++) {
-                allIds = allIds.concat("- ", whitelist[i].tag, '\n');
-            };
-            await intrc.reply({ content: allIds, ephemeral: true});
-            return;
-        }
-        await intrc.reply({ content: `whitelist set to ${godMode}`, ephemeral: true});
+    const command = client.cmds.get(intrc.commandName);
+    if (!command) return;
+
+    try {await command.execute(intrc, client)}
+    catch (e) {
+        console.error(e);
+        await intrc.reply({ content: `error executing the command`, ephemeral: true });
     }
-
-    if (intrc.commandName === 'blacklist') {
-        if (!intrc.member.permissions.has(PermissionsBitField.Flags.ManageMessages) && !intrc.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-            await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
-            return;
-        }
-            damnation = intrc.options.get('darkswitch').value;
-            const addedUser = intrc.options.get('member')?.user;
-            const isSinner = intrc.options.get('sinner')?.value;
-            const isPrint = intrc.options.get('print')?.value;
-            if (isSinner === true) {
-                if (!addedUser) {
-                    await intrc.reply({ content: `try including a member first`, ephemeral: true});
-                    return;
-                }
-            for (usr in blacklist)
-                if (blacklist[usr].id == addedUser.id) {
-                    await intrc.reply({ content: `user ${addedUser.tag} already in blacklist`, ephemeral: true});
-                    return;
-                }
-                blacklist.push(addedUser);
-                await intrc.reply({ content: `added user ${addedUser.tag} to the blacklist`, ephemeral: true});
-                return;
-            }
-            else if (isSinner === false) {
-                if (!addedUser) {
-                    await intrc.reply({ content: `try including a member first`, ephemeral: true});
-                    return;
-                }
-                const didSlice = blacklist.splice(blacklist.indexOf(addedUser), 1);
-                if (didSlice.length === 0) {
-                    await intrc.reply({ content: `user ${addedUser.tag} is not in blacklist`, ephemeral: true});
-                    return;
-                }
-                await intrc.reply({ content: `removed user ${addedUser.tag} from the blacklist`, ephemeral: true});
-                return;
-            }
-            if (isPrint) {
-                if (blacklist.length == 0) {
-                    await intrc.reply({ content: `blacklist is empty`, ephemeral: true});
-                    return;
-                }
-                let allIds = "SINNERS:\n";
-                for (let i = 0; i < blacklist.length; i++) {
-                    allIds = allIds.concat("- ", blacklist[i].tag, '\n');
-                };
-                await intrc.reply({ content: allIds, ephemeral: true});
-                return;
-            }
-            await intrc.reply({ content: `blacklist set to ${damnation}`, ephemeral: true});
-    }
-
-    if (intrc.commandName === 'purge') {
-        if (!intrc.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
-            return;
-        }
-            const non629fm = intrc.options.get('non-629fm').value;
-            const amount = intrc.options.get('fetchamount').value;
-
-        if (amount < 2 || amount > 100) {
-            await intrc.reply({ content: 'amount must be more than 1 and less than 100', ephemeral: true });
-            return;
-        }
-        try {
-            const fetchedmsg  = await intrc.channel.messages.fetch({ limit: amount });
-            const filteredmsg = non629fm ? fetchedmsg.filter(fmsg => !allowed.includes(fmsg.cleanContent)) : fetchedmsg;
-            const deletedmsg  = await intrc.channel.bulkDelete(filteredmsg, true);
-
-            const embed = new EmbedBuilder()
-            .setTitle('bulk delete command used')
-            .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.displayAvatarURL()})
-            .setColor(0x005e13)
-            .setDescription('messages:\n'+deletedmsg.map(msg => `${msg.content}`).join('\n')) // fix this
-            .addFields(
-                { name: 'number of messages', value: `${deletedmsg.size}` }
-            )
-            .setFooter({
-                text: 'cmd called at: ' + intrc.createdAt.toLocaleDateString() + ' ' + intrc.createdAt.toLocaleTimeString()
-            })
-        
-        const logChannel = client.channels.cache.get(process.env.LOG_ID);
-        if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
-
-        await intrc.reply({ content: `${deletedmsg.size} messages deleted successfully`, ephemeral: true });
-        }
-        catch (error) {
-            console.error(error);
-            await intrc.reply({ content: 'error trying to delete', ephemeral: true });
-            return;
-        }
-    }
-
-    if (intrc.commandName === 'announce') {
-        if (!intrc.member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-            await intrc.reply({ content: `you do not have permissions to run this command .`, ephemeral: true});
-            return;
-        }
-
-        await intrc.deferReply({ ephemeral: true });
-
-        const announceTarget = intrc.options.getChannel('channel');
-        const announceImg = intrc.options.getAttachment('image');
-        const dateFormat =  `${intrc.createdAt.getDate().toString().padStart(2, '0')}/${(intrc.createdAt.getMonth()+1).toString().padStart(2, '0')}/${intrc.createdAt.getFullYear()}`;
-        const announceMsg = intrc.options.get('message')?.value ? intrc.options.get('message').value : "";
-        let announceSig = intrc.options.get('signature')?.value ? intrc.options.get('signature').value : "";
-        const announceDate = 
-            intrc.options.get('date')?.value && announceMsg.length === 0 ? dateFormat :
-            intrc.options.get('date')?.value ? dateFormat+" - " : "";
-
-        let processedImg;
-        const msgData = { content: `${announceDate} ${announceMsg}\n${announceSig}` };
-        if (announceImg) {
-            processedImg = new AttachmentBuilder(announceImg.url);
-            msgData.files = [processedImg];
-        }
-
-        const sentMsg = await announceTarget.send(msgData);
-        await intrc.editReply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, ephemeral: true});
-
-        announceSig = announceSig.length === 0 ? 'none' : announceSig;
-
-        const embed = new EmbedBuilder()
-            .setTitle('announcement issued')
-            .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.displayAvatarURL()})
-            .setColor(0x005e13)
-            .setImage(processedImg?.attachment)
-            .addFields(
-                { name: 'content', value: announceMsg.length === 0 ? 'EMPTY_STRING' : announceMsg },
-                { name: 'signed', value: announceSig.length === 0 ? 'none' : announceSig },
-                { name: 'date', value: (intrc.options.get('date')?.value) ? 'yes' : 'no' },
-                { name: 'message link', value: `${sentMsg.url}` }
-            )
-            .setFooter({
-                text: 'cmd called at: ' + intrc.createdAt.toLocaleDateString() + ' ' + intrc.createdAt.toLocaleTimeString()
-            })
-
-        const logChannel = client.channels.cache.get(process.env.LOG_ID);
-        if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] });
-    }
-
-    if (intrc.commandName === 'debt') {
-        if (debt > 0) await intrc.reply({ content: `at this moment consent dept is ${debt} .com entries short`, ephemeral: true });
-        else if (debt < 0 ) await intrc.reply({ content: `at this moment consent dept is ${debt * -1} .com entries ahead`, ephemeral: true });
-        else await intrc.reply({ content: `at this moment consent dept is not facing a .com entry shortage`, ephemeral: true });
-    }
-
 });
 
 client.login(process.env.TOKEN);
