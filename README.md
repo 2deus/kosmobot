@@ -11,7 +11,7 @@ https://discord.gg/qurEuscrnn
 # how to launch
 
 note :
-**node 18** version or above required 2 launch . latest node version can be downloaded [here](https://nodejs.org/en/download/package-manager) .
+**node 22.12.0 or newer** required 2 launch . latest node version can be downloaded [here](https://nodejs.org/en/download/package-manager) .
 
 docker commands should be launched in app folder
 
@@ -19,13 +19,14 @@ before running the bot , slash commands need to be registered :
 ```
 node src/reg-cmds.js
 ```
-this only needs to run once ( and **every time** you update reg-cmds.js )
+this only needs to run once ( and **every time** you update commands or `reg-cmds.js` file)
 
 command 4 launching locally :
 ```
 node src/index.js
 ```
-note : i personally run the bot with [nodemon](https://www.npmjs.com/package/nodemon) 4 easy run-time edits . 
+note : i personally run the bot with [nodemon](https://www.npmjs.com/package/nodemon) 4 easy run-time edits .
+
 it restarts the bot automatically after any file is saved
 
 with docker compose :
@@ -39,6 +40,8 @@ docker-compose up -d
 docker-compose down
 ```
 note : **variables such as blacklist, whitelist, master switches & debt counter WILL NOT SAVE AFTER SHUTTING THE BOT DOWN**
+
+this is going to be adressed in future updates
 
 2 get logs :
 ```
