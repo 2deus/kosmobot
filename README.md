@@ -26,7 +26,6 @@ command 4 launching locally :
 node src/index.js
 ```
 note : i personally run the bot with [nodemon](https://www.npmjs.com/package/nodemon) 4 easy run-time edits .
-
 it restarts the bot automatically after any file is saved
 
 with docker compose :
@@ -40,7 +39,6 @@ docker-compose up -d
 docker-compose down
 ```
 note : **variables such as blacklist, whitelist, master switches & debt counter WILL NOT SAVE AFTER SHUTTING THE BOT DOWN**
-
 this is going to be adressed in future updates
 
 2 get logs :
