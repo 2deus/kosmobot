@@ -1,9 +1,11 @@
-require('dotenv').config();
-const fs = require('node:fs');
-const path = require('node:path');
-var cron = require('node-cron');
+import "dotenv/config";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import fs   from "node:fs";
+import cron from "node-cron";
 
-const { Client, Collection, IntentsBitField, EmbedBuilder, ActivityType } = require('discord.js');
+import { startListener, cleanup } from "./nowPlayingListener.js";
+import { Client, Collection, IntentsBitField, EmbedBuilder, ActivityType, MessageFlags } from 'discord.js';
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -27,17 +29,28 @@ client.data = {
 
 client.cmds = new Collection();
 
-const cmdPath = path.join(__dirname, 'cmds');
-const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.js'));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+
+const cmdPath = join(__dirname, 'cmds');
+const cmdFiles = fs
+    .readdirSync(cmdPath)
+    .filter(f => f.endsWith('.js'));
 
 for (const f of cmdFiles) {
-    const fPath = path.join(cmdPath, f);
-    const cmd = require(fPath);
-    if ('data' in cmd && 'execute' in cmd) {client.cmds.set(cmd.data.name, cmd);console.log('command '+cmd.data.name+' loaded !')}
-        else console.warn(`<<<<<<<<WARNING>>>>>>>> command @ ${fPath} is missing "data" or "execute"`);
+    const fPath = join(cmdPath, f);
+    const fUrl  = pathToFileURL(fPath).href;
+
+    const cmdModule = await import(fUrl);
+    const cmd = cmdModule.default ?? cmdModule;
+
+    if ('data' in cmd && 'execute' in cmd) {
+        client.cmds.set(cmd.data.name, cmd);
+        console.log('command '+cmd.data.name+' loaded !')
+    } else console.warn(`<<<<<<<<WARNING>>>>>>>> command @ ${fPath} is missing "data" or "execute"`);
 }
 
-client.on('ready', (c) => {
+client.on('clientReady', (c) => {
     client.user.setPresence({
         activities: [{
             name: 'you.',
@@ -50,6 +63,8 @@ client.on('ready', (c) => {
         client.channels.cache.get(process.env.CHANNEL_ID).send('629fm');
         client.data.debt++;
     }, {timezone: "Europe/Vilnius"});
+
+    startListener();
     console.log(`${c.user.tag} is online`);
 });
 
@@ -160,8 +175,24 @@ client.on('interactionCreate', async (intrc) => {
     try {await command.execute(intrc, client)}
     catch (e) {
         console.error(e);
-        await intrc.reply({ content: `error executing the command`, ephemeral: true });
+        await intrc.reply({ content: `error executing the command`, flags: MessageFlags.Ephemeral });
     }
 });
+
+function shutdown(signal) {
+    console.log(`[${signal}] cleaning up....`);
+    cleanup();
+    if (client) {
+        client.destroy();
+        console.log("client destroyed....");
+    }
+    console.log("exiting....");
+    process.exit(0);
+}
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGUSR2", () => shutdown("SIGUSR2")); //nodemon exit 4 debug
+
 
 client.login(process.env.TOKEN);

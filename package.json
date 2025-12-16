@@ -1,6 +1,7 @@
 {
   "name": "kosmobot",
   "version": "1.0.0",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +13,8 @@
   "dependencies": {
     "discord.js": "^14.15.2",
     "dotenv": "^16.4.5",
-    "node-cron": "^3.0.3"
+    "icy": "^2.1.0",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2"
   }
 }

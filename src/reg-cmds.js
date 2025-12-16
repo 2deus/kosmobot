@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');
+import "dotenv/config";
+import { REST, Routes, ApplicationCommandOptionType } from 'discord.js';
 
 const commands = [
     {
@@ -119,6 +119,10 @@ const commands = [
     {
         name: 'debt',
         description: `check how many 629fm msgs are missing a .com`
+    },
+    {
+        name: 'nowplaying',
+        description: `check 629fm radio information`
     }
 ];
 
