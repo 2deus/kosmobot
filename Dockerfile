@@ -2,6 +2,7 @@ FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+node src/reg-cmds.js
 COPY . .
 EXPOSE 3080
 CMD ["node", "src/index.js"]
