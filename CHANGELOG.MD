@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Listener rewrite API polling to endpoint listening
 - Refactor to native node.js fetch
 - Add mix covers to `/nowplaying`
+- Add `node src/reg-cmds.js` to deploy procedure
 
 ## [1.0.1] - 2025-12-16
 
