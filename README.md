@@ -8,10 +8,19 @@ note : this repo uses [.env](https://www.npmjs.com/package/dotenv) 4 configurati
 
 https://discord.gg/qurEuscrnn
 
+# dependencies
+
+- [discord.js v14.25.1](https://www.npmjs.com/package/discord.js)
+- [dotenv v16.4.5](https://www.npmjs.com/package/dotenv)
+- [node-cron v3.0.3](https://www.npmjs.com/package/node-cron)
+- [node-fetch v3.3.2](https://www.npmjs.com/package/node-fetch)
+
+Any newer version is fine .
+
 # how to launch
 
 note :
-**node 22.12.0 or newer** required 2 launch . latest node version can be downloaded [here](https://nodejs.org/en/download/package-manager) .
+**node 18 or newer** required 2 launch . latest node version can be downloaded [here](https://nodejs.org/en/download/package-manager) .
 
 docker commands should be launched in app folder
 

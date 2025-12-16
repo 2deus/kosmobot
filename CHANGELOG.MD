@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show listener count and current mix in voice channel names
 - Listener rewrite API polling to endpoint listening
+- Refactor to native node.js fetch
+
+## [1.0.1] - 2025-12-16
+
+### Added
+
+- Marked down dependencies in README.MD
+
+### Changed
+
+- Refactored `package.json`
+- Kosmobot now runs on node version 18
+
+### Removed
+
+- Dependency on ICY
 
 ## [1.0.0] - 2025-12-16
 
@@ -26,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Now using `Node:fetch v3`
+- Now using `Fetch v3`
 - Rewritten CommonJS modules to ESM for better native support and clean syntax
 - Rewritten deprecated ephemeral interaction responses into `MessageFlags.Ephemeral`
 - Rewritten command loader to conform to ESM
