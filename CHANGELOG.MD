@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show listener count and current mix in voice channel names
 - Listener rewrite API polling to endpoint listening
 - Refactor to native node.js fetch
+- Add mix covers to `/nowplaying`
 
 ## [1.0.1] - 2025-12-16
 
