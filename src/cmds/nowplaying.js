@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from 'discord.js';
-import { progressBar } from '../progressBar.js';
+import { progressBar } from '../helpers.js';
 import { state } from "../nowPlayingState.js";
 
 export const data = new SlashCommandBuilder()
