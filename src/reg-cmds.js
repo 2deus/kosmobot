@@ -139,6 +139,6 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
         console.log('cmds registered');
     } catch (err) {
-      console.log(`Error: ${err}`)  
+        console.log(`Error: ${err}`)  
     }
 })();

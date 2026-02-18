@@ -1,6 +1,6 @@
 # kosmobot
 
-source code 4 kosmolit bot used in 629 discord . done with [discordjs](https://discord.js.org/) .
+source code 4 kosmolit bot used in 629 discord . made with [discordjs](https://discord.js.org/) .
 
 note : this repo uses [.env](https://www.npmjs.com/package/dotenv) 4 configuration . check the [.env.example](https://github.com/2deus/kosmobot/blob/main/.env.example) file 4 more information
 

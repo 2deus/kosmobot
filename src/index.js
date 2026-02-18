@@ -1,11 +1,14 @@
 import "dotenv/config";
-import { dirname, join } from "node:path";
+import { dirname, join }                from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import fs   from "node:fs";
-import cron from "node-cron";
+import fs                               from "node:fs";
+import cron                             from "node-cron";
 
-import { startListener, cleanup } from "./nowPlayingListener.js";
-import { Client, Collection, IntentsBitField, EmbedBuilder, ActivityType, MessageFlags } from 'discord.js';
+import { startListener, cleanup }       from "./nowPlayingListener.js";
+import { log }                          from "./log.js";
+import { truncate }                     from "./helpers.js";
+
+import { Client, Collection, IntentsBitField, ActivityType, MessageFlags, time } from 'discord.js';
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -68,41 +71,38 @@ client.on('clientReady', (c) => {
     console.log(`${c.user.tag} is online`);
 });
 
-client.on('guildMemberAdd', async (c) => {
-    c.roles.add([process.env.ROLE_ID]);
-    c.setNickname('629fm');
-    const embed = new EmbedBuilder()
-        .setTitle('new member')
-        .setAuthor({ name: c.user.tag, iconURL: c.user.displayAvatarURL()})
-        .setColor(0x005e13)
-        .setFooter(
-            { text: 'user ID: ' + c.id + ' | ' + c.joinedAt.toLocaleDateString() + ' ' + c.joinedAt.toLocaleTimeString() })
-        
-    const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
-        else warn(`<<<<<<<<WARNING>>>>>>>> member joined but logging failed. check whether <#${process.env.LOG_ID}> exists`);
-    return;
+client.on('guildMemberAdd', async (m) => {
+    await m.roles.add([process.env.ROLE_ID]);
+    await m.setNickname('629fm');
+
+    log({
+        title: "new member",
+        author: { name: m.user.tag, iconURL: m.user.displayAvatarURL() },
+        fields: [
+            { name: `${time(msg.createdAt, 'R')}`, value:`` }
+        ],
+        footer: { text: `user ID: ${m.id}` },
+        warning: "member joined but"
+    }, client)
 });
 
-client.on('guildMemberRemove', async (c) => {
-    const embed = new EmbedBuilder()
-        .setTitle('member gone')
-        .setAuthor({ name: c.user.tag, iconURL: c.user.displayAvatarURL()})
-        .setColor(0x005e13)
-        .setFooter(
-            { text: 'user ID: ' + c.id + ' | ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString() })
-
-    const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
-        else warn(`<<<<<<<<WARNING>>>>>>>> member left but logging failed. check whether <#${process.env.LOG_ID}> exists`);
-    return;
+client.on('guildMemberRemove', async (m) => {
+    log({
+        title: "member gone",
+        author: { name: m.user.tag, iconURL: m.user.displayAvatarURL() },
+        fields: [
+            { name: `${time(msg.createdAt, 'R')}`, value:`` }
+        ],
+        footer: { text: `user ID: ${m.id}` },
+        warning: "member left but"
+    }, client)
 });
 
 function msgCheck(msg, edited) {
     let blacklisted = false;
-    for (usr in client.data.whitelist) if (client.data.whitelist[usr].id == msg.author.id && client.data.godMode) return;
-    for (usr in client.data.blacklist) if (client.data.blacklist[usr].id == msg.author.id && client.data.damnation) blacklisted = true;
     if (msg.author.bot) return;
+    for (let usr in client.data.whitelist) if (client.data.whitelist[usr].id == msg.author.id && client.data.godMode) return;
+    for (let usr in client.data.blacklist) if (client.data.blacklist[usr].id == msg.author.id && client.data.damnation) blacklisted = true;
     if (!blacklisted) client.data.debt += msg.cleanContent == allowed[2] ? 1 : msg.cleanContent == allowed[4] ? -1 : 0;
     if (((allowed.includes(msg.cleanContent) || msg.system) && !blacklisted) || msg.channelId != process.env.CHANNEL_ID) return;
     
@@ -129,24 +129,21 @@ function msgCheck(msg, edited) {
             client.data.debt++;
         }, 500);
     }
-    processedText = edited ? '\\*EDITED* ' + msg.cleanContent : processedText;
 
-    const embed = new EmbedBuilder()
-        .setTitle('Message deleted')
-        .setAuthor({ name: msg.author.tag, iconURL: msg.author.displayAvatarURL()})
-        .setColor(0x005e13)
-        .setImage(image)
-        .addFields(
+    processedText = truncate(edited ? '\\*EDITED* ' + msg.cleanContent : processedText);
+
+    log({
+        title: "message deleted",
+        author: { name: msg.author.tag, iconURL: msg.author.displayAvatarURL() },
+        image: image,
+        fields: [
             { name: 'content', value: processedText },
-            { name: 'jump 2 message', value: `${msg.url}` },
-            { name: 'blacklisted?', value: `${blacklisted}` })
-        .setFooter(
-            { text: 'ID: ' + msg.id + ' | ' + msg.createdAt.toLocaleDateString() + ' ' + msg.createdAt.toLocaleTimeString() })
-        
-    const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
-        else warn(`<<<<<<<<WARNING>>>>>>>> logging failed. check whether <#${process.env.LOG_ID}> exists`);
-    return;
+            { name: 'jump 2 message', value: `${msg.url}` , inline: true },
+            { name: 'blacklisted?', value: `${blacklisted}` , inline: true },
+            { name: `${time(msg.createdAt, 'R')}`, value:`` }
+        ],
+        footer: { text: `ID: ${msg.id}` }
+    }, client)
 }
 
 setInterval(()=> {

@@ -11,15 +11,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show listener count and current mix in voice channel names
 - Listener rewrite API polling to endpoint listening
-- Refactor to native node.js fetch
+- Refactor to native node.js `fetch`
 - Add mix covers to `/nowplaying`
-- Add `node src/reg-cmds.js` to deploy procedure
+- Reformat `log` function to accept more filetypes
+- Rewrite `whitelist` and `blacklist` commands
+- Truncate messages when logging `announce` & `purge`
+
+## [1.1.0] - 2026-02-18
+
+### Added
+
+- Added a module `log.js` to standardize `EmbedBuilder()` logging
+- Added `truncate()` helper function to new module `helpers.js`
+- Added [relative time string formatter](https://discordjs.guide/legacy/popular-topics/formatters#timestamps) to embeds
+
+### Changed
+
+- Updated `.gitignore` to include benign `.vs` and `.vscode` directories
+- Moved `progressBar()` to new module `helpers.js`
+- Changed ephemeral reply on successful announcement post
+- Moved logging out of `try/catch` to avoid ambiguous errors
+- Moved message content from `description` to `field` for embed uniformity
+- Refactored and cleaned up embeds
+- Code reformatting
+
+### Fixed
+
+- Fixed a case where deleted long messages would make `EmbedBuilder` throw an uncaught error. Now messages beyond 1024 characters will be truncated
+- Fixed incorrect `for...in` loop in whitelist/blacklist check logic
+- Made `m.roles.add()` and `m.setNickname()` function calls on `guildMemberAdd` asynchronous
+- Tiny `README.MD` adjustment
+
+### Removed
+
+- `.vs` and `.vscode` directories from repo
+- Benign imports and redundant code
 
 ## [1.0.1] - 2025-12-16
 
 ### Added
 
-- Marked down dependencies in README.MD
+- Marked down dependencies in `README.MD`
+- Added `node src/reg-cmds.js` to deploy procedure
 
 ### Changed
 
@@ -28,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Dependency on ICY
+- Dependency on `ICY`
 
 ## [1.0.0] - 2025-12-16
 

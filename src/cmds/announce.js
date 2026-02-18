@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, PermissionsBitField, MessageFlags } from "discord.js";
-
+import { SlashCommandBuilder, AttachmentBuilder, PermissionsBitField, MessageFlags, time } from "discord.js";
+import { log } from "../log.js";
 
 export const data = new SlashCommandBuilder()
     .setName('announce')
@@ -46,23 +46,20 @@ export async function execute(intrc, client) {
     if (announceAttch) msgData.files = [new AttachmentBuilder(announceAttch.url)];
 
     const sentMsg = await announceTarget.send(msgData);
-    await intrc.editReply({ content: `message sent successfully . jump 2 message: ${sentMsg.url}`, flags: MessageFlags.Ephemeral});
+    await intrc.editReply({ content: `announcement announced announcemently . jump 2 announcement: ${sentMsg.url}`, flags: MessageFlags.Ephemeral});
 
-    const embed = new EmbedBuilder()
-        .setTitle('announcement issued')
-        .setAuthor({ name: intrc.user.tag, iconURL: intrc.user.displayAvatarURL()})
-        .setColor(0x005e13)
-        .setImage(announceAttch.url)
-        .addFields(
-            { name: 'content', value: announceMsg.length === 0 ? 'EMPTY_STRING' : announceMsg },
-            { name: 'signed', value: announceSig.length === 0 ? 'none' : announceSig },
-            { name: 'date', value: (intrc.options.get('date')?.value) ? 'yes' : 'no' },
-            { name: 'message link', value: `${sentMsg.url}` })
-        .setFooter(
-            { text: 'cmd called at: ' + intrc.createdAt.toLocaleDateString() + ' ' + intrc.createdAt.toLocaleTimeString() })
-
-    const logChannel = client.channels.cache.get(process.env.LOG_ID);
-    if (logChannel && logChannel.isTextBased()) logChannel.send({ embeds: [embed] })
-        else await intrc.editReply({ content: `message sent but logging failed. check whether <#${process.env.LOG_ID}> exists`, flags: MessageFlags.Ephemeral});
-    return;
+    log({
+        title: "announcement issued",
+        author: { name: intrc.user.tag, iconURL: intrc.user.displayAvatarURL()},
+        image: msgData.files,
+        fields: [
+            { name: 'content', value: announceMsg.length === 0 ? 'EMPTY_STRING' : announceMsg},
+            { name: 'signed', value: announceSig.length === 0 ? 'none' : announceSig, inline: true },
+            { name: 'date', value: (intrc.options.get('date')?.value) ? 'yes' : 'no', inline: true },
+            { name: 'message link', value: `${sentMsg.url}`, inline: true},
+            { name: `${time(sentMsg.createdAt, 'R')}`, value:`` }
+        ],
+        footer: { text: `ID: ${sentMsg.id}` },
+        warning: "announcement posted but"
+    }, client)
 }
