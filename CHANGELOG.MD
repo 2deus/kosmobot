@@ -35,17 +35,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored and cleaned up embeds
 - Code reformatting
 
-### Removed
-
-- `.vs` and `.vscode` directories from repo
-- Benign imports and redundant code
-
 ### Fixed
 
 - Fixed a case where deleted long messages would make `EmbedBuilder` throw an uncaught error. Now messages beyond 1024 characters will be truncated
 - Fixed incorrect `for...in` loop in whitelist/blacklist check logic
 - Made `m.roles.add()` and `m.setNickname()` function calls on `guildMemberAdd` asynchronous
 - Tiny `README.MD` adjustment
+
+### Removed
+
+- `.vs` and `.vscode` directories from repo
+- Benign imports and redundant code
 
 ## [1.0.1] - 2025-12-16
 
