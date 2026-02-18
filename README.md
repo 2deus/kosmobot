@@ -10,7 +10,7 @@ https://discord.gg/qurEuscrnn
 
 # dependencies
 
-- [discord.js v14.25.1](https://www.npmjs.com/package/discord.js)
+- [discord.js v14.15.2](https://www.npmjs.com/package/discord.js)
 - [dotenv v16.4.5](https://www.npmjs.com/package/dotenv)
 - [node-cron v3.0.3](https://www.npmjs.com/package/node-cron)
 - [node-fetch v3.3.2](https://www.npmjs.com/package/node-fetch)
