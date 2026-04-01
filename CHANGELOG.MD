@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rewrite `whitelist` and `blacklist` commands
 - Truncate messages when logging `announce` & `purge`
 
+## [1.1.1] - 2026-04-01
+
+### Fixed
+
+- Fixed dockerfile syntax
+
 ## [1.1.0] - 2026-02-18
 
 ### Added
