@@ -79,7 +79,7 @@ client.on('guildMemberAdd', async (m) => {
         title: "new member",
         author: { name: m.user.tag, iconURL: m.user.displayAvatarURL() },
         fields: [
-            { name: `${time(msg.createdAt, 'R')}`, value:`` }
+            { name: `${time(m.createdAt, 'R')}`, value:`` }
         ],
         footer: { text: `user ID: ${m.id}` },
         warning: "member joined but"
@@ -91,7 +91,7 @@ client.on('guildMemberRemove', async (m) => {
         title: "member gone",
         author: { name: m.user.tag, iconURL: m.user.displayAvatarURL() },
         fields: [
-            { name: `${time(msg.createdAt, 'R')}`, value:`` }
+            { name: `${time(m.createdAt, 'R')}`, value:`` }
         ],
         footer: { text: `user ID: ${m.id}` },
         warning: "member left but"

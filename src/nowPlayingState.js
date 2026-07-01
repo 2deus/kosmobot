@@ -1,5 +1,6 @@
 export const state = {
-  title: null,
+  title: "",
+  art: "",
   duration: 0,      //seconds
   startedAt: 0,     //timestamp
   listeners: 0,

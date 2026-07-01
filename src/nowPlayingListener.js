@@ -1,7 +1,7 @@
 import fetch     from "node-fetch";
 import { state } from "./nowPlayingState.js";
 
-const API_URL       = "https://stream.629fm.com/api/nowplaying";
+const API_URL       = "https://azuracast.629fm.com/api/nowplaying";
 const POLL_INTERVAL = 5000; // ms
 
 let intervalId = null;
@@ -20,11 +20,12 @@ export function startListener() {
             if (!stationData || !stationData.now_playing) return;
 
             const np       = stationData.now_playing;
-            const newTitle = np.song?.title ?? np.title ?? "Unknown";
+            const newTitle = np.song?.title ?? np.song.artist ?? "";
 
-            // Only log if the track changed
+            // only log if the track changed
             if (newTitle !== state.title) {
                 state.title     = newTitle;
+                state.art       = np.song.art;
                 state.duration  = np.duration ?? 0;
                 state.startedAt = Date.now() - (np.elapsed ?? 0) * 1000;
                 state.listeners = stationData.listeners?.current ?? 0;
@@ -34,14 +35,14 @@ export function startListener() {
             }
 
         } catch (e) {
-            console.warn("failed fetching nowplaying API - ", e.message);
+            console.warn("failed fetching 'api/nowplaying' - ", e.message);
         }
     }
 
-    // Initial fetch
+    // initial fetch
     updateState();
 
-    // Poll every 5 seconds
+    // poll every 5 seconds
     intervalId = setInterval(updateState, POLL_INTERVAL);
 }
 
