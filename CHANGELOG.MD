@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add mix covers to `/nowplaying`
 - Reformat `log` function to accept more filetypes
 - Rewrite `whitelist` and `blacklist` commands
+- Save variables (black/whitelist, master switch, debt counter) to file
 - Truncate messages when logging `announce` & `purge`
 
 ## [1.1.1] - 2026-04-01
