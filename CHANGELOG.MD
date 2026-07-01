@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move API and static image URLs to .env for consistency
 - Migrate guild and channel IDs away from .env by creating a /setup command
 
-## [1.1.2] - 2026-07-01
+## [1.2] - 2026-07-01
 
 ### Added
 
