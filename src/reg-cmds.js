@@ -3,6 +3,80 @@ import { REST, Routes, ApplicationCommandOptionType } from 'discord.js';
 
 const commands = [
     {
+        name: 'announce',
+        description: 'make kosmolit talk on your behalf',
+        options: [
+            {
+                name: 'channel',
+                description: 'which channel to issue the announcement 2',
+                type: ApplicationCommandOptionType.Channel,
+                required: true
+            },
+            {
+                name: 'date',
+                description: `whether the announcement should start with a date`,
+                type: ApplicationCommandOptionType.Boolean,
+                required: true
+            },
+            {
+                name: 'message',
+                description: 'the contents of the announcement',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
+                name: 'attachment',
+                description: 'attach something to the announcement',
+                type: ApplicationCommandOptionType.Attachment,
+                required: false
+            },
+            {
+                name: 'signature',
+                description: 'append a string to the end of the announcement on a new line',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            }
+        ]
+    },
+    {
+        name: 'blacklist',
+        description: 'which grifters should be targeted by kosmobot',
+        options: [
+            {
+                name: 'darkswitch',
+                description: 'toggle blacklist',
+                type: ApplicationCommandOptionType.Boolean,
+                required: true
+            },
+            {
+                name: 'member',
+                description: 'which member 2 judge // not required if printing list',
+                type: ApplicationCommandOptionType.User,
+                required: false
+            },
+            {
+                name: 'sinner',
+                description: `exercise or lift the will of god`,
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            },
+            {
+                name: 'print',
+                description: 'print list in black',
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            }
+        ]
+    },
+    {
+        name: 'debt',
+        description: `check how many 629fm msgs are missing a .com`
+    },
+    {
+        name: 'nowplaying',
+        description: `check 629fm radio information`
+    },
+    {
         name: 'purge',
         description: 'deletes fetched messages with a lifetime of <2 weeks',
         options: [
@@ -49,80 +123,6 @@ const commands = [
                 required: false
             }
         ]
-    },
-    {
-        name: 'blacklist',
-        description: 'which grifters should be targeted by kosmobot',
-        options: [
-            {
-                name: 'darkswitch',
-                description: 'toggle blacklist',
-                type: ApplicationCommandOptionType.Boolean,
-                required: true
-            },
-            {
-                name: 'member',
-                description: 'which member 2 judge // not required if printing list',
-                type: ApplicationCommandOptionType.User,
-                required: false
-            },
-            {
-                name: 'sinner',
-                description: `exercise or lift the will of god`,
-                type: ApplicationCommandOptionType.Boolean,
-                required: false
-            },
-            {
-                name: 'print',
-                description: 'print list in black',
-                type: ApplicationCommandOptionType.Boolean,
-                required: false
-            }
-        ]
-    },
-    {
-        name: 'announce',
-        description: 'make kosmolit talk on your behalf',
-        options: [
-            {
-                name: 'channel',
-                description: 'which channel to issue the announcement 2',
-                type: ApplicationCommandOptionType.Channel,
-                required: true
-            },
-            {
-                name: 'date',
-                description: `whether the announcement should start with a date`,
-                type: ApplicationCommandOptionType.Boolean,
-                required: true
-            },
-            {
-                name: 'message',
-                description: 'the contents of the announcement',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            },
-            {
-                name: 'attachment',
-                description: 'attach something to the announcement',
-                type: ApplicationCommandOptionType.Attachment,
-                required: false
-            },
-            {
-                name: 'signature',
-                description: 'append a string to the end of the announcement on a new line',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            }
-        ]
-    },
-    {
-        name: 'debt',
-        description: `check how many 629fm msgs are missing a .com`
-    },
-    {
-        name: 'nowplaying',
-        description: `check 629fm radio information`
     }
 ];
 
